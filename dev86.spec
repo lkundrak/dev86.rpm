@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker.
 Name: dev86
 Version: 0.16.16
-Release: 3
+Release: 4
 License: GPL
 Group: Development/Languages
 Source: http://www.cix.co.uk/~mayday/Dev86src-%{version}.tar.gz
@@ -66,6 +66,9 @@ rm -rf ${RPM_BUILD_ROOT}
 /%{_mandir}/man1/*
 
 %changelog
+* Wed Mar 02 2005 Karsten Hopp <karsten@redhat.de> 0.16.16-4
+- build with gcc-4
+
 * Mon Feb 14 2005 Florian La Roche <laroche@redhat.com>
 - Copyright: -> License:
 
