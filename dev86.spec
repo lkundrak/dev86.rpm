@@ -1,14 +1,15 @@
 Summary: A real mode 80x86 assembler and linker.
 Name: dev86
-Version: 0.15.0
-Release: 5
+Version: 0.15.5
+Release: 1
 Copyright: GPL
 Group: Development/Languages
 Source: http://www.cix.co.uk/~mayday/Dev86src-%{version}.tar.gz
-Patch0: Dev86src-0.14-noroot.patch
+Patch0: Dev86src-0.15.5-noroot.patch
 Patch1: Dev86src-0.14-nobcc.patch
 Patch2: Dev86src-0.15-bccpaths.patch
 Patch3: Dev86src-0.15-mandir.patch
+Patch4: Dev86src-0.15.5-badlinks.patch
 Buildroot: %{_tmppath}/dev86/
 Obsoletes: bin86
 ExclusiveArch: i386
@@ -28,6 +29,7 @@ mode from their source code.
 %patch1 -b .djb -p1
 %patch2 -b .bccpaths -p1
 %patch3 -b .mandir -p1
+%patch4 -b .fix -p1
 
 %build
 make <<!FooBar!
@@ -60,7 +62,7 @@ ln -s objdump86 size86
 mv ${RPM_BUILD_ROOT}/usr/include ${RPM_BUILD_ROOT}/usr/lib/bcc
 
 %clean
-rm -rf ${RPM_BUILD_ROOT}
+#rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(-,root,root,-)
@@ -88,6 +90,9 @@ rm -rf ${RPM_BUILD_ROOT}
 /%{_mandir}/man1/*
 
 %changelog
+* Mon May  7 2001 Bernhard Rosenkraenzer <bero@redhat.com> 0.15.5-1
+- Update to 0.15.5, lots of fixes
+
 * Wed Jul 12 2000 Prospector <bugzilla@redhat.com>
 - automatic rebuild
 
