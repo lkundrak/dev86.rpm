@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker.
 Name: dev86
 Version: 0.16.3
-Release: 3
+Release: 4
 Copyright: GPL
 Group: Development/Languages
 Source: http://www.cix.co.uk/~mayday/dev86-%{version}.tar.gz
@@ -67,6 +67,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /usr/lib/bcc/i386
 %dir /usr/lib/bcc/include
 /usr/bin/bcc
+/usr/bin/ar86
 /usr/bin/as86
 /usr/bin/as86_encap
 /usr/bin/ld86
@@ -84,6 +85,9 @@ rm -rf ${RPM_BUILD_ROOT}
 /%{_mandir}/man1/*
 
 %changelog
+* Sat Aug 10 2002 Florian La Roche <Florian.LaRoche@redhat.de>
+- add ar86 to filelist
+
 * Fri Jun 21 2002 Tim Powers <timp@redhat.com>
 - automated rebuild
 
