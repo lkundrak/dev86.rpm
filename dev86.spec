@@ -1,13 +1,13 @@
 Summary: A real mode 80x86 assembler and linker.
 Name: dev86
-Version: 0.15.5
-Release: 1
+Version: 0.16.3
+Release: 3
 Copyright: GPL
 Group: Development/Languages
-Source: http://www.cix.co.uk/~mayday/Dev86src-%{version}.tar.gz
+Source: http://www.cix.co.uk/~mayday/dev86-%{version}.tar.gz
 Patch0: Dev86src-0.15.5-noroot.patch
 Patch1: Dev86src-0.14-nobcc.patch
-Patch2: Dev86src-0.15-bccpaths.patch
+Patch2: dev86-0.16.3-bccpath.patch
 Patch3: Dev86src-0.15-mandir.patch
 Patch4: Dev86src-0.15.5-badlinks.patch
 Buildroot: %{_tmppath}/dev86/
@@ -24,25 +24,27 @@ You should install dev86 if you intend to build programs that run in real
 mode from their source code.
 
 %prep
-%setup -q -n linux-86
-%patch0 -b .oot -p1
-%patch1 -b .djb -p1
-%patch2 -b .bccpaths -p1
-%patch3 -b .mandir -p1
-%patch4 -b .fix -p1
+%setup -q
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+mkdir -p lib/bcc
+ln -s ../../include lib/bcc/include
 
 %build
-make <<!FooBar!
+make <<EOF
 5
 quit
-!FooBar!
+EOF
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
 
 make DIST=${RPM_BUILD_ROOT} MANDIR=${RPM_BUILD_ROOT}/%{_mandir} install
 
-install -m 755 -s ${RPM_BUILD_ROOT}/lib/elksemu ${RPM_BUILD_ROOT}/usr/bin
+install -m 755 ${RPM_BUILD_ROOT}/lib/elksemu ${RPM_BUILD_ROOT}/usr/bin
 rm -rf ${RPM_BUILD_ROOT}/lib/
 
 cd ${RPM_BUILD_ROOT}/usr/bin
@@ -50,19 +52,11 @@ rm -f nm86 size86
 ln -s objdump86 nm86
 ln -s objdump86 size86
 
-#strip ${RPM_BUILD_ROOT}/usr/bin/as86
-#strip ${RPM_BUILD_ROOT}/usr/bin/bcc
-#strip ${RPM_BUILD_ROOT}/usr/bin/ld86
-#strip ${RPM_BUILD_ROOT}/usr/bin/objdump86
-#strip ${RPM_BUILD_ROOT}/usr/lib/bcc/bcc-cc1
-#strip ${RPM_BUILD_ROOT}/usr/lib/bcc/copt
-#strip ${RPM_BUILD_ROOT}/usr/lib/bcc/unproto
-
 # move header files out of /usr/include and into /usr/lib/bcc/include
 mv ${RPM_BUILD_ROOT}/usr/include ${RPM_BUILD_ROOT}/usr/lib/bcc
 
 %clean
-#rm -rf ${RPM_BUILD_ROOT}
+rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(-,root,root,-)
@@ -90,6 +84,23 @@ mv ${RPM_BUILD_ROOT}/usr/include ${RPM_BUILD_ROOT}/usr/lib/bcc
 /%{_mandir}/man1/*
 
 %changelog
+* Fri Jun 21 2002 Tim Powers <timp@redhat.com>
+- automated rebuild
+
+* Wed Jun 19 2002 Florian La Roche <Florian.LaRoche@redhat.de>
+- do not strip apps
+
+* Mon May 27 2002 Florian La Roche <Florian.LaRoche@redhat.de>
+- update to 0.16.3
+- fix include paths
+- clean up spec file
+
+* Thu May 23 2002 Tim Powers <timp@redhat.com>
+- automated rebuild
+
+* Wed Jan 09 2002 Tim Powers <timp@redhat.com>
+- automated rebuild
+
 * Mon May  7 2001 Bernhard Rosenkraenzer <bero@redhat.com> 0.15.5-1
 - Update to 0.15.5, lots of fixes
 
