@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker.
 Name: dev86
 Version: 0.16.3
-Release: 8
+Release: 9
 Copyright: GPL
 Group: Development/Languages
 Source: http://www.cix.co.uk/~mayday/dev86-%{version}.tar.gz
@@ -51,6 +51,11 @@ make DIST=${RPM_BUILD_ROOT} MANDIR=${RPM_BUILD_ROOT}/%{_mandir} install
 install -m 755 ${RPM_BUILD_ROOT}/lib/elksemu ${RPM_BUILD_ROOT}/usr/bin
 rm -rf ${RPM_BUILD_ROOT}/lib/
 
+# preserve READMEs
+for i in bootblocks copt dis88 elksemu unproto bin86 ; do cp $i/README README.$i ; done
+cp bin86/README-0.4 README-0.4.bin86
+cp bin86/ChangeLog ChangeLog.bin86
+
 cd ${RPM_BUILD_ROOT}/usr/bin
 rm -f nm86 size86
 ln -s objdump86 nm86
@@ -64,8 +69,8 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(-,root,root,-)
-%doc README MAGIC Contributors bootblocks/README copt/README dis88/README
-%doc elksemu/README unproto/README bin86/README-0.4 bin86/README bin86/ChangeLog
+%doc README MAGIC Contributors README.bootblocks README.copt README.dis88
+%doc README.elksemu README.unproto README-0.4.bin86 README.bin86 ChangeLog.bin86
 %dir /usr/lib/bcc
 %dir /usr/lib/bcc/i86
 %dir /usr/lib/bcc/i386
@@ -89,6 +94,9 @@ rm -rf ${RPM_BUILD_ROOT}
 /%{_mandir}/man1/*
 
 %changelog
+* Thu May 22 2003 Jeremy Katz <katzj@redhat.com> 0.16.3-9
+- preserve README files with separate names
+
 * Fri Jan 31 2003 Florian La Roche <Florian.LaRoche@redhat.de>
 - do not strip static archive to get rebuild working again
 
