@@ -1,16 +1,10 @@
 Summary: A real mode 80x86 assembler and linker.
 Name: dev86
-Version: 0.16.3
-Release: 10
+Version: 0.16.15
+Release: 1
 Copyright: GPL
 Group: Development/Languages
-Source: http://www.cix.co.uk/~mayday/dev86-%{version}.tar.gz
-Patch0: Dev86src-0.15.5-noroot.patch
-Patch1: Dev86src-0.14-nobcc.patch
-Patch2: dev86-0.16.3-bccpath.patch
-Patch3: Dev86src-0.15-mandir.patch
-Patch4: Dev86src-0.15.5-badlinks.patch
-Patch5: dev86-0.16.3-errno.patch
+Source: http://www.cix.co.uk/~mayday/Dev86src-%{version}.tar.gz
 Buildroot: %{_tmppath}/dev86/
 Obsoletes: bin86
 ExclusiveArch: i386
@@ -28,14 +22,6 @@ mode from their source code.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-mkdir -p lib/bcc
-ln -s ../../include lib/bcc/include
 
 %build
 make <<EOF
@@ -46,10 +32,7 @@ EOF
 %install
 rm -rf ${RPM_BUILD_ROOT}
 
-make DIST=${RPM_BUILD_ROOT} MANDIR=${RPM_BUILD_ROOT}/%{_mandir} install
-
-install -m 755 ${RPM_BUILD_ROOT}/lib/elksemu ${RPM_BUILD_ROOT}/usr/bin
-rm -rf ${RPM_BUILD_ROOT}/lib/
+make DIST=${RPM_BUILD_ROOT} MANDIR=%{_mandir} install install-man
 
 # preserve READMEs
 for i in bootblocks copt dis88 elksemu unproto bin86 ; do cp $i/README README.$i ; done
@@ -61,9 +44,6 @@ rm -f nm86 size86
 ln -s objdump86 nm86
 ln -s objdump86 size86
 
-# move header files out of /usr/include and into /usr/lib/bcc/include
-mv ${RPM_BUILD_ROOT}/usr/include ${RPM_BUILD_ROOT}/usr/lib/bcc
-
 %clean
 rm -rf ${RPM_BUILD_ROOT}
 
@@ -72,28 +52,21 @@ rm -rf ${RPM_BUILD_ROOT}
 %doc README MAGIC Contributors README.bootblocks README.copt README.dis88
 %doc README.elksemu README.unproto README-0.4.bin86 README.bin86 ChangeLog.bin86
 %dir /usr/lib/bcc
-%dir /usr/lib/bcc/i86
-%dir /usr/lib/bcc/i386
-%dir /usr/lib/bcc/include
 /usr/bin/bcc
 /usr/bin/ar86
 /usr/bin/as86
-/usr/bin/as86_encap
 /usr/bin/ld86
 /usr/bin/objdump86
 /usr/bin/nm86
 /usr/bin/size86
-/usr/lib/bcc/bcc-cc1
-/usr/lib/bcc/copt
-/usr/lib/bcc/unproto
-/usr/lib/bcc/i86/*
-/usr/lib/bcc/i386/*
-/usr/lib/liberror.txt
-/usr/lib/bcc/include/*
 /usr/bin/elksemu
+/usr/lib/bcc/*
 /%{_mandir}/man1/*
 
 %changelog
+* Fri Feb 20 2004 Thomas Woerner <twoerner@redhat.com> 0.16.15-1
+- new version 0.16.15
+
 * Wed Feb 18 2004 Jeremy Katz <katzj@redhat.com> - 0.16.3-10
 - rebuild
 
