@@ -1,11 +1,10 @@
 Summary: A real mode 80x86 assembler and linker.
 Name: dev86
-Version: 0.16.16
-Release: 4
+Version: 0.16.17
+Release: 1
 License: GPL
 Group: Development/Languages
 Source: http://www.cix.co.uk/~mayday/Dev86src-%{version}.tar.gz
-Patch0: dev86-0.16.16-overflow.patch
 Buildroot: %{_tmppath}/dev86/
 Obsoletes: bin86
 ExclusiveArch: i386
@@ -23,7 +22,6 @@ mode from their source code.
 
 %prep
 %setup -q
-%patch0 -p1 -b .overflow
 
 %build
 make <<EOF
@@ -66,8 +64,9 @@ rm -rf ${RPM_BUILD_ROOT}
 /%{_mandir}/man1/*
 
 %changelog
-* Wed Mar 02 2005 Karsten Hopp <karsten@redhat.de> 0.16.16-4
-- build with gcc-4
+* Wed Mar 02 2005 Karsten Hopp <karsten@redhat.de> 0.16.17-1 
+- update and rebuild with gcc-4
+- drop obsolete overflow patch
 
 * Mon Feb 14 2005 Florian La Roche <laroche@redhat.com>
 - Copyright: -> License:
