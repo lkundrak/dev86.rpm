@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker.
 Name: dev86
 Version: 0.16.3
-Release: 4
+Release: 8
 Copyright: GPL
 Group: Development/Languages
 Source: http://www.cix.co.uk/~mayday/dev86-%{version}.tar.gz
@@ -10,9 +10,12 @@ Patch1: Dev86src-0.14-nobcc.patch
 Patch2: dev86-0.16.3-bccpath.patch
 Patch3: Dev86src-0.15-mandir.patch
 Patch4: Dev86src-0.15.5-badlinks.patch
+Patch5: dev86-0.16.3-errno.patch
 Buildroot: %{_tmppath}/dev86/
 Obsoletes: bin86
 ExclusiveArch: i386
+
+%define __os_install_post    /usr/lib/rpm/redhat/brp-compress /usr/lib/rpm/redhat/brp-strip %{__strip} /usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} %{nil}
 
 %description
 The dev86 package provides an assembler and linker for real mode 80x86
@@ -30,6 +33,7 @@ mode from their source code.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 mkdir -p lib/bcc
 ln -s ../../include lib/bcc/include
 
@@ -85,6 +89,18 @@ rm -rf ${RPM_BUILD_ROOT}
 /%{_mandir}/man1/*
 
 %changelog
+* Fri Jan 31 2003 Florian La Roche <Florian.LaRoche@redhat.de>
+- do not strip static archive to get rebuild working again
+
+* Wed Jan 22 2003 Tim Powers <timp@redhat.com>
+- rebuilt
+
+* Thu Dec 12 2002 Tim Powers <timp@redhat.com> 0.16.3-6
+- rebuild
+
+* Thu Nov 14 2002 Jakub Jelinek <jakub@redhat.com>
+- fix ar86 to include errno.h before using errno.
+
 * Sat Aug 10 2002 Florian La Roche <Florian.LaRoche@redhat.de>
 - add ar86 to filelist
 
