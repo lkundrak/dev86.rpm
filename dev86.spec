@@ -1,13 +1,14 @@
 Summary: A real mode 80x86 assembler and linker.
 Name: dev86
 Version: 0.16.17
-Release: 1
+Release: 2
 License: GPL
 Group: Development/Languages
 Source: http://www.cix.co.uk/~mayday/Dev86src-%{version}.tar.gz
+Patch0: dev86-noelks.patch
 Buildroot: %{_tmppath}/dev86/
 Obsoletes: bin86
-ExclusiveArch: i386
+ExclusiveArch: i386 x86_64
 
 %define __os_install_post    /usr/lib/rpm/redhat/brp-compress /usr/lib/rpm/redhat/brp-strip %{__strip} /usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} %{nil}
 
@@ -22,6 +23,7 @@ mode from their source code.
 
 %prep
 %setup -q
+%patch0 -p1 -b .noelks
 
 %build
 make <<EOF
@@ -35,7 +37,7 @@ rm -rf ${RPM_BUILD_ROOT}
 make DIST=${RPM_BUILD_ROOT} MANDIR=%{_mandir} install install-man
 
 # preserve READMEs
-for i in bootblocks copt dis88 elksemu unproto bin86 ; do cp $i/README README.$i ; done
+for i in bootblocks copt dis88 unproto bin86 ; do cp $i/README README.$i ; done
 cp bin86/README-0.4 README-0.4.bin86
 cp bin86/ChangeLog ChangeLog.bin86
 
@@ -50,7 +52,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %files
 %defattr(-,root,root,-)
 %doc README MAGIC Contributors README.bootblocks README.copt README.dis88
-%doc README.elksemu README.unproto README-0.4.bin86 README.bin86 ChangeLog.bin86
+%doc README.unproto README-0.4.bin86 README.bin86 ChangeLog.bin86
 %dir /usr/lib/bcc
 /usr/bin/bcc
 /usr/bin/ar86
@@ -59,11 +61,14 @@ rm -rf ${RPM_BUILD_ROOT}
 /usr/bin/objdump86
 /usr/bin/nm86
 /usr/bin/size86
-/usr/bin/elksemu
 /usr/lib/bcc/*
 /%{_mandir}/man1/*
 
 %changelog
+* Wed Jan 25 2006 Jeremy Katz <katzj@redhat.com> - 0.16.17-2
+- build on x86_64
+- don't build elks (it's not happy on x86_64)
+
 * Wed Mar 02 2005 Karsten Hopp <karsten@redhat.de> 0.16.17-1 
 - update and rebuild with gcc-4
 - drop obsolete overflow patch
