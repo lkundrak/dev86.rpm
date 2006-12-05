@@ -1,12 +1,13 @@
-Summary: A real mode 80x86 assembler and linker.
+Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 2.2
+Release: 3%{?dist}
 License: GPL
 Group: Development/Languages
-Source: http://www.cix.co.uk/~mayday/Dev86src-%{version}.tar.gz
+URL: http://homepage.ntlworld.com/robert.debath/
+Source: http://homepage.ntlworld.com/robert.debath/dev86/Dev86src-%{version}.tar.gz
 Patch0: dev86-noelks.patch
-Buildroot: %{_tmppath}/dev86/
+Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Obsoletes: bin86
 ExclusiveArch: i386 x86_64
 
@@ -41,7 +42,7 @@ for i in bootblocks copt dis88 unproto bin86 ; do cp $i/README README.$i ; done
 cp bin86/README-0.4 README-0.4.bin86
 cp bin86/ChangeLog ChangeLog.bin86
 
-cd ${RPM_BUILD_ROOT}/usr/bin
+cd ${RPM_BUILD_ROOT}%{_bindir}
 rm -f nm86 size86
 ln -s objdump86 nm86
 ln -s objdump86 size86
@@ -53,18 +54,22 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(-,root,root,-)
 %doc README MAGIC Contributors README.bootblocks README.copt README.dis88
 %doc README.unproto README-0.4.bin86 README.bin86 ChangeLog.bin86
-%dir /usr/lib/bcc
-/usr/bin/bcc
-/usr/bin/ar86
-/usr/bin/as86
-/usr/bin/ld86
-/usr/bin/objdump86
-/usr/bin/nm86
-/usr/bin/size86
-/usr/lib/bcc/*
-/%{_mandir}/man1/*
+%dir %{_libdir}/bcc
+%{_bindir}/bcc
+%{_bindir}/ar86
+%{_bindir}/as86
+%{_bindir}/ld86
+%{_bindir}/objdump86
+%{_bindir}/nm86
+%{_bindir}/size86
+%{_libdir}/bcc/*
+%{_mandir}/man1/*
 
 %changelog
+* Tue Dec  5 2006 Jindrich Novy <jnovy@redhat.com> - 0.16.17-3
+- make the dev86 spec less tragic -> use macros, don't conflict
+  on multiarches, add URL, fix BuildRoot, fix rpmlint warnings
+
 * Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 0.16.17-2.2
 - rebuild
 
