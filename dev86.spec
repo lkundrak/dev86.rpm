@@ -26,6 +26,10 @@ mode from their source code.
 %setup -q
 %patch0 -p1 -b .noelks
 
+%ifarch x86_64
+perl -pi -e 's/lib/lib64/g' Makefile
+%endif
+
 %build
 make <<EOF
 5
