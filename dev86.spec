@@ -1,12 +1,15 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPL
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
 Source: http://homepage.ntlworld.com/robert.debath/dev86/Dev86src-%{version}.tar.gz
 Patch0: dev86-noelks.patch
+%ifarch x86_64
+Patch1: dev86-x86_64.patch
+%endif
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Obsoletes: bin86
 ExclusiveArch: i386 x86_64
@@ -25,9 +28,8 @@ mode from their source code.
 %prep
 %setup -q
 %patch0 -p1 -b .noelks
-
 %ifarch x86_64
-perl -pi -e 's/lib/lib64/g' Makefile
+%patch1 -p1 -b .x86_64
 %endif
 
 %build
@@ -39,17 +41,23 @@ EOF
 %install
 rm -rf ${RPM_BUILD_ROOT}
 
-make DIST=${RPM_BUILD_ROOT} MANDIR=%{_mandir} install install-man
+make	DIST=${RPM_BUILD_ROOT} \
+	MANDIR=%{_mandir} \
+	LIBDIR=%{_libdir}/bcc \
+	INCLDIR=%{_libdir}/bcc \
+	LOCALPREFIX=%{_prefix} \
+	install install-man
 
 # preserve READMEs
 for i in bootblocks copt dis88 unproto bin86 ; do cp $i/README README.$i ; done
 cp bin86/README-0.4 README-0.4.bin86
 cp bin86/ChangeLog ChangeLog.bin86
 
-cd ${RPM_BUILD_ROOT}%{_bindir}
+pushd ${RPM_BUILD_ROOT}%{_bindir}
 rm -f nm86 size86
 ln -s objdump86 nm86
 ln -s objdump86 size86
+popd
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -70,6 +78,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Wed Dec 27 2006 Jindrich Novy <jnovy@redhat.com> - 0.16.17-4
+- bcc now searches in correct path for bcc-cpp on x86_64 (#219697)
+
 * Tue Dec  5 2006 Jindrich Novy <jnovy@redhat.com> - 0.16.17-3
 - make the dev86 spec less tragic -> use macros, don't conflict
   on multiarches, add URL, fix BuildRoot, fix rpmlint warnings
