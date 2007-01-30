@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: GPL
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
@@ -10,6 +10,7 @@ Patch0: dev86-noelks.patch
 %ifarch x86_64
 Patch1: dev86-x86_64.patch
 %endif
+Patch2: dev86-nostrip.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Obsoletes: bin86
 ExclusiveArch: i386 x86_64
@@ -31,6 +32,7 @@ mode from their source code.
 %ifarch x86_64
 %patch1 -p1 -b .x86_64
 %endif
+%patch2 -p1 -b .nostrip
 
 %build
 make <<EOF
@@ -78,6 +80,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jan 30 2007 Jindrich Novy <jnovy@redhat.com> - 0.16.17-5
+- don't strip debuginfo
+
 * Wed Dec 27 2006 Jindrich Novy <jnovy@redhat.com> - 0.16.17-4
 - bcc now searches in correct path for bcc-cpp on x86_64 (#219697)
 
