@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPL
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
@@ -80,6 +80,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Thu Aug 09 2007 Jindrich Novy <jnovy@redhat.com> - 0.16.17-6
+- rebuild (#249952)
+
 * Tue Jan 30 2007 Jindrich Novy <jnovy@redhat.com> - 0.16.17-5
 - don't strip debuginfo
 
