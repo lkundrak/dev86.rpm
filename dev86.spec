@@ -14,6 +14,7 @@ Patch2: dev86-nostrip.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Obsoletes: bin86
 ExclusiveArch: i386 x86_64
+BuildRequires: gawk
 
 %define __os_install_post    /usr/lib/rpm/redhat/brp-compress /usr/lib/rpm/redhat/brp-strip %{__strip} /usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} %{nil}
 
@@ -80,7 +81,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
-* Thu Aug 09 2007 Jindrich Novy <jnovy@redhat.com> - 0.16.17-6
+* Thu Aug 27 2007 Jindrich Novy <jnovy@redhat.com> - 0.16.17-6
+- add missing BR on gawk
 - rebuild (#249952)
 
 * Tue Jan 30 2007 Jindrich Novy <jnovy@redhat.com> - 0.16.17-5
