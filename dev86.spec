@@ -1,15 +1,13 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: GPL
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
 Source: http://homepage.ntlworld.com/robert.debath/dev86/Dev86src-%{version}.tar.gz
 Patch0: dev86-noelks.patch
-%ifarch x86_64
 Patch1: dev86-x86_64.patch
-%endif
 Patch2: dev86-nostrip.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Obsoletes: bin86
@@ -81,6 +79,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Mon Sep 17 2007 Jindrich Novy <jnovy@redhat.com> - 0.16.17-7
+- don't ifarch patch definition
+
 * Thu Aug 27 2007 Jindrich Novy <jnovy@redhat.com> - 0.16.17-6
 - add missing BR on gawk
 - rebuild (#249952)
