@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: GPL
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
@@ -79,6 +79,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Tue Feb 19 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 0.16.17-8
+- Autorebuild for GCC 4.3
+
 * Mon Sep 17 2007 Jindrich Novy <jnovy@redhat.com> - 0.16.17-7
 - don't ifarch patch definition
 
