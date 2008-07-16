@@ -1,8 +1,8 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 9%{?dist}
-License: GPL
+Release: 10%{?dist}
+License: GPL+ and GPLv2+ and LGPLv2+
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
 Source: http://homepage.ntlworld.com/robert.debath/dev86/Dev86src-%{version}.tar.gz
@@ -79,6 +79,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Wed Jul 16 2008 Tom "spot" Callaway <tcallawa@redhat.com> 0.16.17-10
+- fix license tag
+
 * Mon Feb 25 2008 Jindrich Novy <jnovy@redhat.com> 0.16.17-9
 - manual rebuild because of gcc-4.3 (#434186)
 
