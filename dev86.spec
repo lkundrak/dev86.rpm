@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 10%{?dist}
+Release: 11%{?dist}
 License: GPL+ and GPLv2+ and LGPLv2+
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
@@ -11,7 +11,6 @@ Patch1: dev86-x86_64.patch
 Patch2: dev86-nostrip.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Obsoletes: bin86
-ExclusiveArch: i386 x86_64
 BuildRequires: gawk
 
 %define __os_install_post    /usr/lib/rpm/redhat/brp-compress /usr/lib/rpm/redhat/brp-strip %{__strip} /usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} %{nil}
@@ -79,6 +78,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Mon Feb 16 2009 Jindrich Novy <jnovy@redhat.com> 0.16.17-11
+- remove ExcludeArch to allow to run dev86 on different arches
+
 * Wed Jul 16 2008 Tom "spot" Callaway <tcallawa@redhat.com> 0.16.17-10
 - fix license tag
 
