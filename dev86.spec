@@ -1,13 +1,13 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 11%{?dist}
+Release: 12%{?dist}
 License: GPL+ and GPLv2+ and LGPLv2+
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
 Source: http://homepage.ntlworld.com/robert.debath/dev86/Dev86src-%{version}.tar.gz
 Patch0: dev86-noelks.patch
-Patch1: dev86-x86_64.patch
+Patch1: dev86-64bit.patch
 Patch2: dev86-nostrip.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Obsoletes: bin86
@@ -27,8 +27,8 @@ mode from their source code.
 %prep
 %setup -q
 %patch0 -p1 -b .noelks
-%ifarch x86_64
-%patch1 -p1 -b .x86_64
+%if %{__isa_bits} == 64
+%patch1 -p1 -b .64bit
 %endif
 %patch2 -p1 -b .nostrip
 
@@ -78,8 +78,12 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Tue Feb 17 2009 Jindrich Novy <jnovy@redhat.com> 0.16.17-12
+- apply 64bit fix to all platforms, not only on x86_64,
+  thanks to Glauber Costa
+
 * Mon Feb 16 2009 Jindrich Novy <jnovy@redhat.com> 0.16.17-11
-- remove ExcludeArch to allow to run dev86 on different arches
+- remove ExclusiveArch to allow to run dev86 on different arches
 
 * Wed Jul 16 2008 Tom "spot" Callaway <tcallawa@redhat.com> 0.16.17-10
 - fix license tag
