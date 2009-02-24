@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 13%{?dist}
+Release: 14%{?dist}
 License: GPL+ and GPLv2+ and LGPLv2+
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
@@ -87,6 +87,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.16.17-14
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
 * Thu Feb 19 2009 Jindrich Novy <jnovy@redhat.com> 0.16.17-13
 - fix buffer overflow caused by realpath() call
 - attempt to fix type width size for 64bit arches
