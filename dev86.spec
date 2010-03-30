@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 15%{?dist}
+Release: 16%{?dist}
 License: GPL+ and GPLv2+ and LGPLv2+
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
@@ -11,6 +11,7 @@ Patch1: dev86-64bit.patch
 Patch2: dev86-nostrip.patch
 Patch3: dev86-overflow.patch
 Patch4: dev86-long.patch
+Patch5: dev86-print-overflow.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Obsoletes: bin86
 
@@ -35,6 +36,7 @@ mode from their source code.
 %patch2 -p1 -b .nostrip
 %patch3 -p1 -b .overflow
 %patch4 -p1 -b .long
+%patch5 -p1 -b .print-overflow
 
 %build
 # the main makefile doesn't allow parallel build
@@ -87,6 +89,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Tue Mar 30 2010 Jindrich Novy <jnovy@redhat.com> 0.16.17-16
+- fix sprintf overflows (#577982), patch from Lubomir Rintel
+
 * Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.16.17-15
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
