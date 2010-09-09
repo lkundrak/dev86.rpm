@@ -1,0 +1,78 @@
+From f28d5d1d4144f0bf242f82122cd3be4248e55034 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Sun, 30 May 2010 16:01:51 +0200
+Subject: [PATCH 12/19] Add support for some old K&R post-assignment operator
+ syntax
+
+Old C had "=+" instead of "+=" and so on. To grok it we would need to
+break later C including ISO and ANSI standards, potentially breaking
+existing code (=- would no longer be assignment and unary minus),
+thus this is disabled per default and enabled only with -7.
+---
+ bcc/scan.c |   43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+
+diff --git a/bcc/scan.c b/bcc/scan.c
+index 7db7629..9759d97 100644
+--- a/bcc/scan.c
++++ b/bcc/scan.c
+@@ -12,6 +12,9 @@
+ #include "sizes.h"
+ #include "table.h"
+ #include "type.h"
++#ifndef VERY_SMALL_MEMORY
++#include "parse.h"
++#endif
+ 
+ #undef EXTERN
+ #define EXTERN
+@@ -598,6 +601,46 @@ PUBLIC void nextsym()
+ 		sym = EQOP;
+ 		gch1();
+ 	    }
++/* There's no ancient switch on low memory systems */
++#ifndef VERY_SMALL_MEMORY
++            /* This is how things were in old K&R code.
++             * Note that =- and =* behave differently from ANSI C,
++             * where =- would be assignment and unary minus and
++             * =* would be assignment and pointer dereference. */
++	    else if (ancient)
++	    {
++		if (ch == '+')
++		{
++		    sym = ADDABOP;
++		    gch1();
++		}
++		else if (ch == '-')
++		{
++		    sym = SUBABOP;
++		    gch1();
++		}
++		else if (ch == '*')
++		{
++		    sym = MULABOP;
++		    gch1();
++		}
++		else if (ch == '/')
++		{
++		    sym = DIVABOP;
++		    gch1();
++		}
++		else if (ch == '|')
++		{
++		    sym = ORABOP;
++		    gch1();
++		}
++		else if (ch == '&')
++		{
++		    sym = ANDABOP;
++		    gch1();
++		}
++	    }
++#endif
+ 	    return;
+ 	case ADDOP:
+ 	    if (ch == '+')
+-- 
+1.7.10
+

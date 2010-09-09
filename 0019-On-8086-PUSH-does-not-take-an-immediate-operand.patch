@@ -1,0 +1,24 @@
+From 971834c8615d072523ee32f2635b0e3f0bba7f31 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Sat, 30 Apr 2011 18:16:18 +0200
+Subject: [PATCH 19/19] On 8086 PUSH does not take an immediate operand
+
+---
+ as/mops.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/as/mops.c b/as/mops.c
+index d18510d..1b7eac6 100644
+--- a/as/mops.c
++++ b/as/mops.c
+@@ -2172,6 +2172,7 @@ PUBLIC void mpushpop()
+ 	    }
+ 	    else
+ 	    {
++		needcpu(1);
+ 		opcode = 0x68;
+ 		if (oldopcode == POP_OPCODE)
+ 		    ++opcode;
+-- 
+1.7.10
+

@@ -1,0 +1,30 @@
+From d2c5eae8107590234a02617468afb5058a0d498e Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Mon, 30 Apr 2012 08:52:22 +0200
+Subject: [PATCH 01/19] dev86-long.patch patch from dev86-0.16.18-2.fc18
+
+---
+ ld/x86_aout.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/ld/x86_aout.h b/ld/x86_aout.h
+index 45bf0c7..16f9ad5 100644
+--- a/ld/x86_aout.h
++++ b/ld/x86_aout.h
+@@ -11,10 +11,11 @@
+ /* If the host isn't an x86 all bets are off, use chars. */
+ #if defined(i386) || defined(__BCC__) || defined(MSDOS)
+ typedef long Long;
+-#define __OUT_OK 1
+ #else
+-typedef char Long[4];
++#include <stdint.h>
++typedef int32_t Long;
+ #endif
++#define __OUT_OK 1
+ 
+ struct	exec {			/* a.out header */
+   unsigned char	a_magic[2];	/* magic number */
+-- 
+1.7.10
+

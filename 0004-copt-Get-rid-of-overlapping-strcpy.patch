@@ -1,0 +1,35 @@
+From 3bd88d797b813bfbd8ecd5ab717f23b404e05db0 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Mon, 30 Apr 2012 08:40:37 +0200
+Subject: [PATCH 04/19] copt: Get rid of overlapping strcpy()
+
+Optimizer was corrupting optimized assembly file with certain strcpy()
+implementations: "\tcmp\tdx,b0[bp]" was turned into invalid
+"cmp\tdxb0[bp]".
+
+Valgrind:
+
+==2491== Source and destination overlap in strcpy(0x804d640, 0x804d641)
+==2491==    at 0x40098CA: strcpy (mc_replace_strmem.c:429)
+==2491==    by 0x8049F57: readlist (copt.c:177)
+==2491==    by 0x80488D6: main (copt.c:319)
+---
+ copt/copt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/copt/copt.c b/copt/copt.c
+index d744da8..9392380 100644
+--- a/copt/copt.c
++++ b/copt/copt.c
+@@ -174,7 +174,7 @@ static char *readline(FILE *fp)
+   /* Delete leading white spaces */
+   for (cp = buf; *cp && isspace(*cp); cp++) ;
+   if (cp != buf && *cp)
+-	strcpy(buf, cp);
++	memmove(buf, cp, strlen(cp) + 1);
+ 
+   return(buf);
+ }
+-- 
+1.7.10
+

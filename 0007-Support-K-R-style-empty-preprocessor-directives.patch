@@ -1,0 +1,29 @@
+From 4f837860459f1a344bd6f107979d11f9df9f134f Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Tue, 25 May 2010 21:15:36 +0200
+Subject: [PATCH 07/19] Support K&R style empty preprocessor directives
+
+---
+ cpp/cpp.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/cpp/cpp.c b/cpp/cpp.c
+index 616cf87..4cb1beb 100644
+--- a/cpp/cpp.c
++++ b/cpp/cpp.c
+@@ -686,8 +686,11 @@ do_preproc()
+ 	 } else 
+ 	    no_match=1;
+       }
++   } else if (!val) {
++       /* Empty directives used to denote that a file is to be run through
++        * the preprocessor in K&R. Do not complain if we got no token. */
++       no_match=1;
+    }
+-   else no_match=1;
+    
+    if( no_match )
+    {
+-- 
+1.7.10
+

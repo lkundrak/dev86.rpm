@@ -1,0 +1,25 @@
+From bb10099f32537e0b1aae7b733c8ad8fd1238955f Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Mon, 30 Apr 2012 08:46:26 +0200
+Subject: [PATCH 03/19] Create distribution directory if required
+
+---
+ Mk_dist |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Mk_dist b/Mk_dist
+index ad61af7..be020c6 100644
+--- a/Mk_dist
++++ b/Mk_dist
+@@ -166,6 +166,8 @@ diff -Nurd ${TMPSRC}.vold/bootblocks ${TMPSRC}/bootblocks >> ${ARCDIR}/patch-$VE
+ gzip -f9 ${ARCDIR}/patch-$VERSION-$OLDVER
+ }
+ 
++mkdir -p ${ARCDIR}
++
+ echo Creating full source archive.
+ ln -s ${TMPSRC} dev86-$VERSION
+ tar cf ${ARCDIR}/Dev86src-$VERSION.tar dev86-$VERSION/*
+-- 
+1.7.10
+

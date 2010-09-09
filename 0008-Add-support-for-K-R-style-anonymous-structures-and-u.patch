@@ -1,0 +1,197 @@
+From 57cfce009152374d9acb0842ac2e0f66fe2e1a8c Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Tue, 25 May 2010 21:15:16 +0200
+Subject: [PATCH 08/19] Add support for K&R-style anonymous structures and
+ unions
+
+---
+ bcc/declare.c |   44 ++++++++++++++++++++++++++++++++++++++++++++
+ bcc/express.c |   13 ++++++++++---
+ bcc/proto.h   |    8 ++++++++
+ bcc/table.c   |   38 ++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 100 insertions(+), 3 deletions(-)
+
+diff --git a/bcc/declare.c b/bcc/declare.c
+index 0820c4b..a92c545 100644
+--- a/bcc/declare.c
++++ b/bcc/declare.c
+@@ -2,6 +2,9 @@
+ 
+ /* Copyright (C) 1992 Bruce Evans */
+ 
++#ifndef VERY_SMALL_MEMORY
++#include <stdio.h>
++#endif
+ #include "bcc.h"
+ #include "align.h"
+ #include "byteord.h"
+@@ -26,6 +29,10 @@ PRIVATE char gvar2name[2 + NAMESIZE];	/* space for structure keys and .. */
+ PRIVATE struct typestruct *gvartype;	/* type of last identifier declared */
+ PRIVATE bool_t initlistflag;	/* remembers whether initializer is a list */
+ 
++#ifndef VERY_SMALL_MEMORY
++PRIVATE int anons = 0;		/* number of anonymous structures/unions seen */
++#endif
++
+ FORWARD struct typestruct *chainprefix P((struct typestruct *pretype,
+ 					   struct typestruct *sufftype));
+ FORWARD void declaf P((void));
+@@ -219,7 +226,12 @@ PRIVATE void declarator()
+ {
+     rdeclarator();
+     if (gvartype->constructor == STRUCTU && gvartype->typesize == 0 &&
++/* We don't do the anonymous union/structure trickery on low mem machines */
++#ifdef VERY_SMALL_MEMORY
+ 	gvarsc != TYPEDEFDECL && gvarsc != EXTERNDECL)
++#else
++	gvarsc != TYPEDEFDECL && gvarsc != EXTERNDECL && gvarsc != NULLDECL)
++#endif
+ 	error("undefined structure");
+ }
+ 
+@@ -328,10 +340,21 @@ struct typelist **ptypelist;
+     if (gvarsc != NULLDECL)
+ 	error("illegal type name");
+     basetype = gvartype;
++
++#ifndef VERY_SMALL_MEMORY
++    if (sym == SEMICOLON || sym == EOFSYM) {
++	/* Generate a fake structure if none specified... */
++	anonstruct ();
++	/* ....and pretend it was regularly present in source */
++	goto anonstr;
++    }
++#endif
++
+     while (sym != SEMICOLON && sym != EOFSYM)
+     {
+ 	gvartype = basetype;
+ 	declarator();
++anonstr:
+ 	fieldwidth = -1;
+ 	if (sym == COLON)
+ 	{
+@@ -1189,3 +1212,24 @@ PUBLIC struct typestruct *typename()
+     gvartype = ogvartype;
+     return type;
+ }
++
++#ifndef VERY_SMALL_MEMORY
++PUBLIC int lastanon()
++{
++    return anons;
++}
++
++PUBLIC void anonname(name, i)
++char *name;
++int i;
++{
++    if (i == 0xfff)
++        fatalerror("Too many anonymous structs/unions");
++    sprintf (name, "__an%03x", i);
++}
++
++PUBLIC void anonstruct()
++{
++    anonname (gvarname, anons++);
++}
++#endif
+diff --git a/bcc/express.c b/bcc/express.c
+index 66298d3..1da7389 100644
+--- a/bcc/express.c
++++ b/bcc/express.c
+@@ -285,9 +285,16 @@ bool_pt seenlp;
+ 	    nodeptr = node(INDIRECTOP, nodeptr, NULLNODE);
+ 	case STRUCELTOP:
+ 	    nextsym();
+-	    gs2name[0] = nodeptr->nodetype->structkey[0];
+-	    gs2name[1] = nodeptr->nodetype->structkey[1];
+-	    if ((gsymptr = findlorg(gs2name)) == NULL)
++/* On memory constrained systems we save space that would be needed to keep */
++/* track of anonymous structure members by not implementing lookup in them */
++/* at all. */
++#ifdef VERY_SMALL_MEMORY
++            gs2name[0] = nodeptr->nodetype->structkey[0];
++            gs2name[1] = nodeptr->nodetype->structkey[1];
++            if ((gsymptr = findlorg(gs2name)) == NULL)
++#else
++	    if ((gsymptr = findstrm(nodeptr->nodetype, gs2name)) == NULL)
++#endif
+ 	    {
+ 		error("undefined structure element");
+ 		gsymptr = addglb(gs2name, itype);
+diff --git a/bcc/proto.h b/bcc/proto.h
+index 3b44a56..baee0c3 100644
+--- a/bcc/proto.h
++++ b/bcc/proto.h
+@@ -119,6 +119,11 @@ void rbracket P((void));
+ void rparen P((void));
+ void semicolon P((void));
+ struct typestruct *typename P((void));
++#ifndef VERY_SMALL_MEMORY
++int lastanon P((void));
++void anonname P((char *name, int i));
++void anonstruct P((void));
++#endif
+ 
+ /* express.c */
+ struct nodestruct *assignment_exp P((void));
+@@ -355,6 +360,9 @@ void outofmemoryerror P((char *message));
+ void *qmalloc P((unsigned size));
+ void swapsym P((struct symstruct *sym1, struct symstruct *sym2));
+ void syminit P((void));
++#ifndef VERY_SMALL_MEMORY
++struct symstruct *findstrm P((struct typestruct *type, char *name));
++#endif
+ 
+ /* type.c */
+ struct typestruct *addstruct P((char *structname));
+diff --git a/bcc/table.c b/bcc/table.c
+index 166c143..e863fb5 100644
+--- a/bcc/table.c
++++ b/bcc/table.c
+@@ -691,3 +691,41 @@ PUBLIC void syminit()
+ 	addkeyword(kwptr->kwname, kwptr->kwcode);
+     constemplate.type = itype;
+ }
++
++#ifndef VERY_SMALL_MEMORY
++PUBLIC struct symstruct *findstrm(type, name)
++struct typestruct *type;
++char *name;
++{
++    struct symstruct *symptr;
++    int i;
++    char anon[2 + NAMESIZE];
++    struct typelist *tl;
++
++    /* Look for a struct member named as given */
++    name[0] = type->structkey[0];
++    name[1] = type->structkey[1];
++	if ((symptr = findlorg(name)) != NULL)
++	    return symptr;
++
++    /* No match? Fine, let's see if there are any anynymous structures
++     * or unions that we could recurse into */
++    for (i = 0; i < lastanon(); i++)
++    {
++	anon[0] = type->structkey[0];
++	anon[1] = type->structkey[1];
++	anonname(&anon[2], i);
++	if ((symptr = findlorg(anon)) != NULL)
++	{
++	    /* Found an anonymous struture */
++	    if (!(symptr->type->constructor & STRUCTU))
++		error("Anonymous structure not a structure?!");
++	    /* Look for the member */
++	    strcpy(&anon[2], &name[2]);
++	    if ((symptr = findstrm(symptr->type, anon)) != NULL)
++		return symptr;
++	}
++    }
++    return NULL;
++}
++#endif
+-- 
+1.7.10
+

@@ -1,0 +1,63 @@
+From a168a8806588b871fd58a367f868d31ff0fc914b Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Wed, 26 May 2010 23:29:16 +0200
+Subject: [PATCH 11/19] In K&R C lvalues remain lvalues even after cast
+
+---
+ bcc/express.c |    7 ++++++-
+ bcc/exptree.c |   14 ++++++++++++--
+ 2 files changed, 18 insertions(+), 3 deletions(-)
+
+diff --git a/bcc/express.c b/bcc/express.c
+index 1da7389..1a95d50 100644
+--- a/bcc/express.c
++++ b/bcc/express.c
+@@ -43,7 +43,12 @@ PRIVATE struct nodestruct *cast_exp()
+     if (vartype->scalar & INT && scalar & (CHAR | SHORT | INT)
+ 	&& !((vartype->scalar ^ scalar) & UNSIGNED))
+     {
+-	nodeptr->flags &= ~LVALUE;
++/* No ancient switch on low mem systems */
++#ifndef VERY_SMALL_MEMORY
++	/* In ancient UNIX C, casts remain lvalues */
++	if (!ancient)
++#endif
++	    nodeptr->flags &= ~LVALUE;
+ 	return nodeptr;		/* skip casts that are default promotions */
+     }
+     return castnode(vartype, nodeptr);
+diff --git a/bcc/exptree.c b/bcc/exptree.c
+index 04a4534..c5cc09f 100644
+--- a/bcc/exptree.c
++++ b/bcc/exptree.c
+@@ -358,7 +358,12 @@ struct nodestruct *p2;
+ 	needspv(p2);
+ 	if (p1->nodetype == p2->nodetype)
+ 	{
+-	    p1->flags &= ~LVALUE;
++/* No ancient switch on low mem systems */
++#ifndef VERY_SMALL_MEMORY
++	    /* In ancient UNIX C, casts remain lvalues */
++	    if (!ancient)
++#endif
++		p1->flags &= ~LVALUE;
+ 	    return p1;
+ 	}
+ 	if ((rscalar = p2->nodetype->scalar) & ISCALAR)
+@@ -455,7 +460,12 @@ struct nodestruct *p2;
+ 	}
+ 	else
+ 	    goto node1;
+-	p1->flags &= ~LVALUE;
++/* No ancient switch on low mem systems */
++#ifndef VERY_SMALL_MEMORY
++	/* In ancient UNIX C, casts remain lvalues */
++	if (!ancient)
++#endif
++	    p1->flags &= ~LVALUE;
+ 	p1->nodetype = target->type = p2->nodetype;
+ 	return p1;
+     case INDIRECTOP:
+-- 
+1.7.10
+

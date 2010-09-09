@@ -1,0 +1,65 @@
+From c2bc4fe9de8b54b30da938b489506e2c1678c376 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Mon, 28 Jun 2010 07:38:12 +0200
+Subject: [PATCH 15/19] Link compile helpers separately
+
+---
+ libc/Makefile |    6 +++++-
+ makefile.in   |    3 ++-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/libc/Makefile b/libc/Makefile
+index 481c034..f7df72d 100644
+--- a/libc/Makefile
++++ b/libc/Makefile
+@@ -9,6 +9,7 @@ else
+ TOP=$(TOPDIR)/libc
+ endif
+ 
++LIBBCC=$(TOP)/libbcc.a
+ CC=bcc
+ CCFLAGS=-I -I$(TOP)/include
+ DEFS=-D__LIBC__
+@@ -30,7 +31,7 @@ MAKEPASS=	\
+          DEFS='$(DEFS)' LIB_CPU='$(LIB_CPU)' LIB_OS='$(LIB_OS)' \
+ 
+ 
+-all: $(OBJ) $(LIBC)
++all: $(OBJ) $(LIBC) $(LIBBCC)
+ 	@:
+ 
+ $(LIBC): transfer .config.dir
+@@ -38,6 +39,9 @@ $(LIBC): transfer .config.dir
+ 	   $(MAKE) $(MAKEPASS) -C $$i all || exit 1 ; \
+ 	done
+ 
++$(LIBBCC): .config.dir
++	   $(MAKE) $(MAKEPASS) LIBC=$(LIBBCC) -C bcc all
++
+ crt3.o: crt0.c Makefile
+ 	$(CC) -c $(CFLAGS) -D__LIBC_VER__='"$(VERSION)"' -o $@ crt0.c
+ 
+diff --git a/makefile.in b/makefile.in
+index afedd16..28e62c7 100644
+--- a/makefile.in
++++ b/makefile.in
+@@ -240,6 +240,7 @@ install-lib: lib/lib0-done lib/lib2-done lib/lib1-done
+ 	install $(INDAT) lib/libc_s.a	$(DISTLIB)/libc_s.a
+ 	install $(INDAT) lib/libbsd.a	$(DISTLIB)/libbsd.a
+ 	install $(INDAT) lib/libdos.a	$(DISTLIB)/libdos.a
++	install $(INDAT) lib/libbcc.a	$(DISTLIB)/libbcc.a
+ #ifndef __AS386_16__
+ 	install -d $(DISTLIB)/i386
+ 	install $(INDAT) lib/i386/crt0.o 	$(DISTLIB)/i386/crt0.o
+@@ -261,7 +262,7 @@ all-libs: library lib-bsd alt-libs
+ library: bindir
+ 	test -f bin/ncc
+ 	$(MAKEC) libc $(LIBARGS) PLATFORM=i86-ELKS
+-	cp -p libc/crt0.o libc/libc.a lib/.
++	cp -p libc/crt0.o libc/libc.a libc/libbcc.a lib/.
+ 	sh libcompat lib/libc.a
+ 	@touch lib/lib0-done
+ 
+-- 
+1.7.10
+

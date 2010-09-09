@@ -1,0 +1,51 @@
+From e8d0759d19aceee601d1f63b43271948b62c5f8f Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Sun, 30 May 2010 16:02:14 +0200
+Subject: [PATCH 13/19] Add support for old K&R style initializers
+
+---
+ bcc/declare.c |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/bcc/declare.c b/bcc/declare.c
+index a92c545..09859c6 100644
+--- a/bcc/declare.c
++++ b/bcc/declare.c
+@@ -857,11 +857,24 @@ PRIVATE void idecllist()
+ 	    gvarsymptr->flags = KEYWORD;
+ 	    gvarsymptr->offset.offsym = TYPEDEFNAME;
+ 	}
++#ifndef VERY_SMALL_MEMORY
++	if (sym == ASSIGNOP || (ancient && sym == LBRACE))
++#else
+ 	if (sym == ASSIGNOP)
++#endif
+ 	{
++	    /* This is always false for low-memory environments given */
++	    /* there's no ancient switch there. */
++            int oldstyle = (sym == LBRACE);
++
+ 	    if (gvarsymptr->flags & INITIALIZED)
+ 		multidecl(gvarname);
+-	    nextsym();
++            /* If we're initializing an array, let's pretend there */
++            /* was a new-fashioned initializer with an equal sign */
++            if (oldstyle && gvartype->constructor == ARRAY)
++                oldstyle = 0;
++            else
++	        nextsym();
+ 	    if (level == GLBLEVEL || gvarsc == STATICDECL)
+ 	    {
+ #ifndef DIRECTPAGE
+@@ -914,6 +927,8 @@ PRIVATE void idecllist()
+ 		    break;
+ 		}
+ 	    }
++            if (oldstyle)
++                rbrace();
+ 	}
+ 	else if (level != GLBLEVEL && gvarsc == STATICDECL &&
+ 		 gvartype->constructor != FUNCTION)
+-- 
+1.7.10
+

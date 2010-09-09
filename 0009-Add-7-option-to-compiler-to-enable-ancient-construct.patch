@@ -1,0 +1,156 @@
+From f2129e9c32a142690bf3e0d72fd44e72d4b97b9c Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Mon, 19 Jul 2010 19:26:16 +0200
+Subject: [PATCH 09/19] Add -7 option to compiler to enable ancient construct
+
+Following commits add various funcitonality that is likely to be
+unwanted for the most, but is vital to compile really old C code, such
+as Seventh Edition UNIX code.
+---
+ bcc/bcc.c     |   13 ++++++++++++-
+ bcc/gencode.c |    3 +++
+ bcc/input.c   |   13 +++++++++++++
+ bcc/parse.h   |    3 +++
+ man/bcc.1     |   18 ++++++++++++++++++
+ 5 files changed, 49 insertions(+), 1 deletion(-)
+
+diff --git a/bcc/bcc.c b/bcc/bcc.c
+index 9503103..3e88aa6 100644
+--- a/bcc/bcc.c
++++ b/bcc/bcc.c
+@@ -103,7 +103,11 @@ struct opt_list {
+ } * options;
+ 
+ int opt_v, opt_V, opt_e, opt_x, opt_I, opt_L, opt_W, opt_i,
+-    opt_O, opt_M, opt_f;
++    opt_O, opt_M, opt_f
++#ifndef VERY_SMALL_MEMORY
++, opt_7
++#endif
++;
+ 
+ #ifdef DEFARCH
+ int opt_arch = (DEFARCH != 0);
+@@ -390,6 +394,10 @@ struct file_list * file;
+ 
+    if (opt_arch<5 && !do_as)
+       command_opt("-t");
++#ifndef VERY_SMALL_MEMORY
++   if (opt_7)
++       command_opt("-7");
++#endif
+ 
+    command_opts('c');
+    command_opts('C');
+@@ -953,6 +961,9 @@ char ** argv;
+       case 'L': opt_L++; break;
+       case 'i': opt_i++; break;
+       case 'f': opt_f++; break;
++#ifndef VERY_SMALL_MEMORY
++      case '7': opt_7++; break;
++#endif
+ 
+       case 'W': opt_W++; break;
+ 
+diff --git a/bcc/gencode.c b/bcc/gencode.c
+index 91c524f..6c97e1d 100644
+--- a/bcc/gencode.c
++++ b/bcc/gencode.c
+@@ -81,6 +81,9 @@ PUBLIC bool_t arg1inreg = TRUE;
+ PUBLIC store_pt calleemask = INDREG1 | INDREG2;
+ PUBLIC bool_t callersaves = TRUE;
+ PUBLIC char *callstring = "JSR\t>";
++#ifndef VERY_SMALL_MEMORY
++PUBLIC bool_t ancient = FALSE;
++#endif
+ PUBLIC store_pt doubleargregs = DREG | INDREG0 | INDREG1 | INDREG2;
+ PUBLIC store_pt doubleregs = DREG | INDREG0 | INDREG1 | INDREG2;
+ PUBLIC store_pt doublreturnregs = DREG | INDREG0 | INDREG1 | INDREG2;
+diff --git a/bcc/input.c b/bcc/input.c
+index a17af4a..9ef19e3 100644
+--- a/bcc/input.c
++++ b/bcc/input.c
+@@ -12,6 +12,9 @@
+ #include "sc.h"
+ #include "scan.h"
+ #include "table.h"
++#ifndef VERY_SMALL_MEMORY
++#include "parse.h"
++#endif
+ 
+ #undef EXTERN
+ #define EXTERN
+@@ -539,6 +542,9 @@ char *argv[];
+ #endif
+ 	    case 't':		/* print source code in asm output */
+ 	    case 'w':		/* watch location counter */
++#ifndef VERY_SMALL_MEMORY
++	    case '7':		/* accept ancient K&R code */
++#endif
+ 	    case 'O':		/* Optimisation. */
+ 		if (arg[2] == 0)
+ 		    flag[(int)arg[1]] = TRUE;
+@@ -631,6 +637,13 @@ ts_s_includelist += sizeof *incnew;
+ 	definestring("__POS_INDEPENDENT__");
+     }
+ #endif
++#ifndef VERY_SMALL_MEMORY
++    if (flag['7'])
++    {
++	ancient = TRUE;
++	definestring("__ANCIENT__");
++    }
++#endif
+     if (flag['O'])
+     {
+ 	optimise = TRUE;
+diff --git a/bcc/parse.h b/bcc/parse.h
+index ab67f6c..429ca2a 100644
+--- a/bcc/parse.h
++++ b/bcc/parse.h
+@@ -17,3 +17,6 @@ EXTERN struct nodestruct *etptr;     /* ptr to next entry in expression tree */
+ EXTERN struct symstruct *gvarsymptr; /* gsymptr for last identifier declared */
+ EXTERN scopelev_t level;	/* scope level */
+ 				/* depends on zero init */
++#ifndef VERY_SMALL_MEMORY
++EXTERN bool_t ancient;		/* undersand ancient K&R */
++#endif
+diff --git a/man/bcc.1 b/man/bcc.1
+index 21a1d64..ea59492 100644
+--- a/man/bcc.1
++++ b/man/bcc.1
+@@ -197,6 +197,18 @@ don't include crt0.o in the link.
+ don't pass
+ .B -i
+ to the linker so that it will create an impure executable.
++.TP
++.B -7
++Turn on ancient C mode (see CODE GENERATOR OPTIONS below).
++Among other things, this disables valuable
++error checks and even parses certain constructs incompatibly (e.g.
++.I =-
++is postdecrement instead of an assignment of a negative number)
++to later C standards, so this option should only be used with ancient
++code. To generate executables for a V7 variant you should tell
++linker to generate old a.out header with
++.B -X-7
++option.
+ .P
+ Other options are passed to the linker, in particular -lx, -M, -m, -s, -H.
+ 
+@@ -249,6 +261,12 @@ print source code in assembly output
+ .TP 
+ .B -w
+ print what cc1 thinks is the location counter in assembly output
++.TP
++.B -7
++Accept various obsolete construct for ancient C compilers, including
++Ritchie's Sixth Edition UNIX C compiler and Seventh Edition UNIX
++Portable C compiler. Enough of these compilers is emulated to compile
++all of Seventh Edition userspace and kernel.
+ .P
+ All the options except -D, -I and -o may be turned off by following the
+ option letter by a '-'.  Options are processed left to right so the last
+-- 
+1.7.10
+

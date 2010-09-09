@@ -1,0 +1,31 @@
+From 53978dc581eccc97cc23792362cf17ce689f1562 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Sun, 30 May 2010 16:55:19 +0200
+Subject: [PATCH 14/19] Allow non-matching implicit and explicit decl types
+
+It's done in K&R c code a couple of times. Even gcc would allow this, so
+why worry.
+---
+ bcc/declare.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/bcc/declare.c b/bcc/declare.c
+index 09859c6..1f0aae2 100644
+--- a/bcc/declare.c
++++ b/bcc/declare.c
+@@ -636,6 +636,12 @@ PRIVATE void declfunc()
+     if( strcmp(funcname, "main") != 0 ) main_flag = -1;
+     if (gvarsymptr == NULL)
+ 	gvarsymptr = addglb(gvarname, gvartype);
++/* No ancient switch on small memory systems */
++#ifndef VERY_SMALL_MEMORY
++    else if (ancient) {}
++	/* Full declaration type different from the prior implicit
++	 * one. Even gcc allows this, just comes up with a warning */
++#endif
+     else if (gvarsymptr->type != gvartype ||
+ 	     (gvarsymptr->flags & INITIALIZED))
+ 	multidecl(gvarname);	/* different type or full declare */
+-- 
+1.7.10
+

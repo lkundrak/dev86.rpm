@@ -1,0 +1,77 @@
+From bf95fe0a3b6c577dac618e2eadbabf3ce34f2a4a Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Sun, 30 May 2010 18:16:12 +0200
+Subject: [PATCH 10/19] Untie structure members from structure
+
+In historic K&R C, structure members name space was global. For compatibility, search all structures for a member if it is not found.
+---
+ bcc/proto.h |    3 +++
+ bcc/table.c |   18 ++++++++++++++++++
+ bcc/type.c  |    8 ++++++++
+ 3 files changed, 29 insertions(+)
+
+diff --git a/bcc/proto.h b/bcc/proto.h
+index baee0c3..bffc42b 100644
+--- a/bcc/proto.h
++++ b/bcc/proto.h
+@@ -366,6 +366,9 @@ struct symstruct *findstrm P((struct typestruct *type, char *name));
+ 
+ /* type.c */
+ struct typestruct *addstruct P((char *structname));
++#ifndef VERY_SMALL_MEMORY
++void laststruct P((char *sname));
++#endif
+ struct typestruct *iscalartotype P((scalar_pt scalar));
+ struct typestruct *newtype P((void));
+ void outntypechar P((struct typestruct *type));
+diff --git a/bcc/table.c b/bcc/table.c
+index e863fb5..ae34839 100644
+--- a/bcc/table.c
++++ b/bcc/table.c
+@@ -726,6 +726,24 @@ char *name;
+ 		return symptr;
+ 	}
+     }
++
++#ifndef VERY_SMALL_MEMORY
++    /* In ancient UNIX, C structure members were global */
++    if (!ancient)
++        return NULL;
++
++    /* Find any structure member of given name */
++    laststruct(name);
++    while (name[0]) {
++	if ((symptr = findlorg(name)) != NULL)
++	    return symptr;
++        if (--name[1] == 0) {
++            name[1] = 255;
++            name[0]--;
++	}
++    }
++#endif
++
+     return NULL;
+ }
+ #endif
+diff --git a/bcc/type.c b/bcc/type.c
+index 10db803..f6919e5 100644
+--- a/bcc/type.c
++++ b/bcc/type.c
+@@ -56,6 +56,14 @@ ts_s_structname += namelength + 1;
+     return structype;
+ }
+ 
++#ifndef VERY_SMALL_MEMORY
++PUBLIC void laststruct(char *sname)
++{
++    sname[0] = skey0;
++    sname[1] = skey1;
++}
++#endif
++
+ PUBLIC struct typestruct *iscalartotype(scalar)
+ scalar_pt scalar;
+ {
+-- 
+1.7.10
+

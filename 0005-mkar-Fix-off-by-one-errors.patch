@@ -1,0 +1,37 @@
+From baa908b1bc441e8e5421841af4540de995201dd9 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Mon, 30 Apr 2012 08:53:13 +0200
+Subject: [PATCH 05/19] mkar: Fix off-by-one errors
+
+There are off-by-one errors when filling the ar headers, the trailing nul
+would overflow the target buffer.
+---
+ ld/mkar.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/ld/mkar.c b/ld/mkar.c
+index 8c4eb5b..ff43340 100644
+--- a/ld/mkar.c
++++ b/ld/mkar.c
+@@ -51,12 +51,12 @@ char buf[128];
+       memset(&arbuf, ' ', sizeof(arbuf));
+       strcpy(buf, ptr); strcat(buf, "/                 ");
+       strncpy(arbuf.ar_name, buf, sizeof(arbuf.ar_name));
+-      
+-      sprintf(arbuf.ar_date, "%-12ld", (long)st.st_mtime);
+-      sprintf(arbuf.ar_uid, "%-6d",    (int)(st.st_uid%1000000L));
+-      sprintf(arbuf.ar_gid, "%-6d",    (int)(st.st_gid%1000000L));
+-      sprintf(arbuf.ar_mode, "%-8lo",  (long)st.st_mode);
+-      sprintf(arbuf.ar_size, "%-10ld", (long)st.st_size);
++     
++      snprintf(arbuf.ar_date, 12, "%-12ld", (long)st.st_mtime);
++      snprintf(arbuf.ar_uid, 6, "%-6d", (int)(st.st_uid%1000000L));
++      snprintf(arbuf.ar_gid, 6, "%-6d", (int)(st.st_gid%1000000L));
++      snprintf(arbuf.ar_mode, 8, "%-8lo", (long)st.st_mode);
++      snprintf(arbuf.ar_size, 10, "%-10ld", (long)st.st_size);
+       memcpy(arbuf.ar_fmag, ARFMAG, sizeof(arbuf.ar_fmag));
+ 
+       if( fwrite(&arbuf, 1, sizeof(arbuf), fd) != sizeof(arbuf) )
+-- 
+1.7.10
+

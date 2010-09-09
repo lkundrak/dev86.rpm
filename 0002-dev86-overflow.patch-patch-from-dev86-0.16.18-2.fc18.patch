@@ -1,0 +1,37 @@
+From 08f680838ddf6c956d87a55e48158c63cc8eb5d6 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Mon, 30 Apr 2012 08:52:53 +0200
+Subject: [PATCH 02/19] dev86-overflow.patch patch from dev86-0.16.18-2.fc18
+
+---
+ bcc/bcc.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/bcc/bcc.c b/bcc/bcc.c
+index 9e5269f..9503103 100644
+--- a/bcc/bcc.c
++++ b/bcc/bcc.c
+@@ -16,6 +16,7 @@
+  *	-M0	A framework for the -B option.
+  */
+ #include <stdio.h>
++#include <limits.h>
+ #ifdef __STDC__
+ #include <stdlib.h>
+ #ifndef MSDOS
+@@ -1308,11 +1309,7 @@ void reset_prefix_path()
+ 
+       for(d=s=ptr; d && *s; s=d)
+       {
+-#ifdef MAXPATHLEN
+-         char buf[MAXPATHLEN];
+-#else
+-         char buf[1024];
+-#endif
++         char buf[PATH_MAX];
+ 
+ 	 free(temp);
+          d=strchr(s, ':');
+-- 
+1.7.10
+

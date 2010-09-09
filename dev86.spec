@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.18
-Release: 2%{?dist}
+Release: 2%{?dist}.v7.1
 License: GPL+ and GPLv2+ and LGPLv2+
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
@@ -12,6 +12,27 @@ Patch2: dev86-nostrip.patch
 Patch3: dev86-overflow.patch
 Patch4: dev86-long.patch
 Patch5: dev86-print-overflow.patch
+
+# v7 additions
+# All sent upstream twice, without response
+Epoch: 8086
+Patch10003: 0003-Create-distribution-directory-if-required.patch
+Patch10004: 0004-copt-Get-rid-of-overlapping-strcpy.patch
+Patch10006: 0006-Add-support-for-creating-V7-executables.patch
+Patch10007: 0007-Support-K-R-style-empty-preprocessor-directives.patch
+Patch10008: 0008-Add-support-for-K-R-style-anonymous-structures-and-u.patch
+Patch10009: 0009-Add-7-option-to-compiler-to-enable-ancient-construct.patch
+Patch10010: 0010-Untie-structure-members-from-structure.patch
+Patch10011: 0011-In-K-R-C-lvalues-remain-lvalues-even-after-cast.patch
+Patch10012: 0012-Add-support-for-some-old-K-R-post-assignment-operato.patch
+Patch10013: 0013-Add-support-for-old-K-R-style-initializers.patch
+Patch10014: 0014-Allow-non-matching-implicit-and-explicit-decl-types.patch
+Patch10015: 0015-Link-compile-helpers-separately.patch
+Patch10016: 0016-Prefer-entry-into-start-to-main.patch
+Patch10017: 0017-Add-size-objdump-support-for-v7.patch
+Patch10018: 0018-Check-for-incorrect-REP-REPNE-prefix-use.patch
+Patch10019: 0019-On-8086-PUSH-does-not-take-an-immediate-operand.patch
+
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Obsoletes: bin86
 
@@ -37,6 +58,23 @@ mode from their source code.
 %patch3 -p1 -b .overflow
 %patch4 -p1 -b .long
 %patch5 -p1 -b .print-overflow
+
+%patch10003 -p1
+%patch10004 -p1
+%patch10006 -p1
+%patch10007 -p1
+%patch10008 -p1
+%patch10009 -p1
+%patch10010 -p1
+%patch10011 -p1
+%patch10012 -p1
+%patch10013 -p1
+%patch10014 -p1
+%patch10015 -p1
+%patch10016 -p1
+%patch10017 -p1
+%patch10018 -p1
+%patch10019 -p1
 
 %build
 # the main makefile doesn't allow parallel build
@@ -89,6 +127,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Wed May 02 2012 Lubomir Rintel <lkundrak@v3.sk> 8086:0.16.18-2.v7.1
+- Add v7 K&R C compatibility patches
+
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.16.18-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 

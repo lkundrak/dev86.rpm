@@ -1,0 +1,29 @@
+From 790d131723e7d01860431fa51a6421872c8c9822 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Fri, 30 Jul 2010 22:32:18 +0200
+Subject: [PATCH 16/19] Prefer entry into start() to main()
+
+UNIX linker traditionally made it possible to do various initializations
+prior to _main being jumped into, usually by means of assembler _start
+routine.
+---
+ ld/linksyms.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/ld/linksyms.c b/ld/linksyms.c
+index b5304a3..9c1a61f 100644
+--- a/ld/linksyms.c
++++ b/ld/linksyms.c
+@@ -34,7 +34,8 @@ bool_pt argreloc_output;
+ 	return;
+     }
+ #endif
+-    if ((symptr = findsym("_main")) != NUL_PTR)
++    if ((symptr = findsym("_start")) != NUL_PTR ||
++        (symptr = findsym("_main")) != NUL_PTR)
+ 	entrysym(symptr);
+     do
+     {
+-- 
+1.7.10
+
