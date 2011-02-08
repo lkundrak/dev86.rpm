@@ -1,7 +1,7 @@
 Summary: A real mode 80x86 assembler and linker
 Name: dev86
 Version: 0.16.17
-Release: 16%{?dist}
+Release: 17%{?dist}
 License: GPL+ and GPLv2+ and LGPLv2+
 Group: Development/Languages
 URL: http://homepage.ntlworld.com/robert.debath/
@@ -89,6 +89,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.16.17-17
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Tue Mar 30 2010 Jindrich Novy <jnovy@redhat.com> 0.16.17-16
 - fix sprintf overflows (#577982), patch from Lubomir Rintel
 
